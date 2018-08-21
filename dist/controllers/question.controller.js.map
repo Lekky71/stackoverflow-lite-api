@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../controllers/question.controller.js"],"names":["router","express","Router"],"mappings":";;AAAA;;;;;;AAEA,IAAMA,SAASC,kBAAQC,MAAR,EAAf","file":"question.controller.js","sourcesContent":["import express from 'express';\n\nconst router = express.Router();\n"]}

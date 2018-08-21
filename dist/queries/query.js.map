@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../queries/query.js"],"names":["module","exports","create_table"],"mappings":";;AAAAA,OAAOC,OAAP,GAAiB;AACfC,gBAAc;AADC,CAAjB","file":"query.js","sourcesContent":["module.exports = {\n  create_table: 'CREATE TABLE users(id PRIMARY KEY, username)',\n};\n"]}
