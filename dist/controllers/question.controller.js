@@ -69,4 +69,6 @@ router.get('/search', function (req, res) {});
  * Get all the most answered questions.
  */
 router.get('/popular-questions', function (req, res) {});
+
+module.exports = router;
 //# sourceMappingURL=question.controller.js.map

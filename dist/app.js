@@ -28,10 +28,6 @@ var _index = require('./routes/index');
 
 var _index2 = _interopRequireDefault(_index);
 
-var _users = require('./routes/users');
-
-var _users2 = _interopRequireDefault(_users);
-
 var _auth = require('./controllers/auth.controller');
 
 var _auth2 = _interopRequireDefault(_auth);
@@ -46,6 +42,12 @@ _dotenv2.default.config();
 
 var app = (0, _express2.default)();
 
+/**
+ * @const apiVersion : api version
+ * @type {string}
+ */
+var apiVersion = 'api/v1';
+
 // view engine setup
 app.set('views', _path2.default.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -57,9 +59,8 @@ app.use((0, _cookieParser2.default)());
 app.use(_express2.default.static(_path2.default.join(__dirname, 'public')));
 
 app.use('/', _index2.default);
-app.use('/users', _users2.default);
-app.use('/auth', _auth2.default);
-app.use('/questions', _question2.default);
+app.use('/' + apiVersion + '/auth', _auth2.default);
+app.use('/' + apiVersion + '/questions', _question2.default);
 
 // catch 404 and forward to error handler
 

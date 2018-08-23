@@ -82,3 +82,5 @@ router.get('/search', (req, res) => {
 router.get('/popular-questions', (req, res) => {
 
 });
+
+module.exports = router;

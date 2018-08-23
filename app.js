@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
 import indexRouter from './routes/index';
-import usersRouter from './routes/users';
 import authController from './controllers/auth.controller';
 import questionController from './controllers/question.controller';
 
@@ -13,6 +12,12 @@ import questionController from './controllers/question.controller';
 dotenv.config();
 
 const app = express();
+
+/**
+ * @const apiVersion : api version
+ * @type {string}
+ */
+const apiVersion = 'api/v1';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,9 +30,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/auth', authController);
-app.use('/questions', questionController);
+app.use(`/${apiVersion}/auth`, authController);
+app.use(`/${apiVersion}/questions`, questionController);
 
 // catch 404 and forward to error handler
 
