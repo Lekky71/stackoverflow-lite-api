@@ -32,6 +32,14 @@ var _users = require('./routes/users');
 
 var _users2 = _interopRequireDefault(_users);
 
+var _auth = require('./controllers/auth.controller');
+
+var _auth2 = _interopRequireDefault(_auth);
+
+var _question = require('./controllers/question.controller');
+
+var _question2 = _interopRequireDefault(_question);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _dotenv2.default.config();
@@ -50,6 +58,8 @@ app.use(_express2.default.static(_path2.default.join(__dirname, 'public')));
 
 app.use('/', _index2.default);
 app.use('/users', _users2.default);
+app.use('/auth', _auth2.default);
+app.use('/questions', _question2.default);
 
 // catch 404 and forward to error handler
 

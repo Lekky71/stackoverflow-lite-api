@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { Pool, Client } from 'pg';
 
 import { check, validationResult } from 'express-validator/check';
