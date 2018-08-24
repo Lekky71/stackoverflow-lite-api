@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../tests/question.test.js"],"names":["expect","chai"],"mappings":";;AAAA;;;;;;AAEA,IAAMA,SAASC,eAAKD,MAApB","file":"question.test.js","sourcesContent":["import chai from 'chai';\n\nconst expect = chai.expect;\n"]}
