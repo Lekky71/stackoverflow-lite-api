@@ -9,7 +9,7 @@ import authController from './controllers/auth.controller';
 import questionController from './controllers/question.controller';
 
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname.replace('dist', ''), '.env') });
 
 const app = express();
 
@@ -50,6 +50,6 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-app.listen(process.env.API_PORT, () => {});
+app.listen(process.env.API_PORT, () => { console.log(`App is listening on port ${process.env.API_PORT}`); });
 
 module.exports = app;

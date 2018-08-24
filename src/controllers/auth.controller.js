@@ -20,13 +20,12 @@ client.connect((err) => {
   if (err) console.log(`could not connect to Database : ${JSON.stringify(err)}`);
   else {
     console.log('Successfully connected to database');
-    client.query(queries.check_if_table_exists, ['hashirAMA'], (err1, results) => {
+    client.query(queries.check_if_table_exists, ['yggujbbubuhuihh8u9u'], (err1, results) => {
       if (err1) {
         client.query(queries.create_user_table)
           .then((result) => {
 
           }).catch((err2) => {
-            console.log(err2);
           });
       }
     });
@@ -63,11 +62,11 @@ router.post('/signup', [
   const lastName = req.body.last_name;
 
   JSON.stringify(client.query(queries.find_user_by_username, [username], (err, result) => {
-    if (result) {
+    if (err) {
       return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
     }
     JSON.stringify(client.query(queries.find_user_by_email, [email], (err1, result1) => {
-      if (result1) {
+      if (err1) {
         return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
       }
       bcrypt.hash(password, 10, (err2, hash) => {
@@ -108,9 +107,9 @@ router.post('/login', [
 
   const { username, password } = req.body;
   client.query(queries.find_user_get_password, [username], (err, results) => {
-    if(err) console.log(err);
-    console.log(`User logging in : ${results}`);
-    if (results) {
+    if (err)
+      return res.status(200).json({ status: 'failure', errors: ['could not login'] });
+    if (results.rows[0]) {
       const user = results.rows[0];
       const token = jwt.sign({ id: user.id }, config.jwt.secret);
       bcrypt.compare(password, user.password, (err2, result) => {
@@ -124,7 +123,7 @@ router.post('/login', [
         return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
       });
     } else {
-      return res.status(200).json({ status: 'failure', errors: ['Invalid login details usaw'] });
+      return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
     }
   });
 });
