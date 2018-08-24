@@ -1,17 +1,37 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { Pool, Client } from 'pg';
-
+import jwt from 'jsonwebtoken';
+import { Client } from 'pg';
 import { check, validationResult } from 'express-validator/check';
+import config from '../config/config';
+import queries from '../queries/query';
+
 
 const router = express.Router();
-const pool = Pool();
+const client = new Client({
+  user: config.postgresql.user,
+  host: config.postgresql.host,
+  database: config.postgresql.database,
+  password: config.postgresql.password,
+  port: config.postgresql.port,
+});
 
+client.connect((err) => {
+  if (err) console.log(`could not connect to Database : ${JSON.stringify(err)}`);
+  else {
+    console.log('Successfully connected to database');
+    client.query(queries.check_if_table_exists, ['hashirAMA'], (err1, results) => {
+      if (err1) {
+        client.query(queries.create_user_table)
+          .then((result) => {
 
-const client = Client();
-client.connect();
-
+          }).catch((err2) => {
+            console.log(err2);
+          });
+      }
+    });
+  }
+});
 router.post('/signup', [
   check('username').exists().withMessage('Enter username').trim()
     .isLength({ min: 5 })
@@ -33,14 +53,79 @@ router.post('/signup', [
   errors.array().forEach((err1) => {
     errorArray.push(err1.msg);
   });
+
   if (!errors.isEmpty()) {
     return res.json({ status: 'failure', errors: errorArray });
   }
-  const username = req.body.username;
-  const email = req.body.email;
-  const password = req.body.email;
+
+  const { username, email, password } = req.body;
   const firstName = req.body.first_name;
   const lastName = req.body.last_name;
 
-
+  JSON.stringify(client.query(queries.find_user_by_username, [username], (err, result) => {
+    if (result) {
+      return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
+    }
+    JSON.stringify(client.query(queries.find_user_by_email, [email], (err1, result1) => {
+      if (result1) {
+        return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
+      }
+      bcrypt.hash(password, 10, (err2, hash) => {
+        if (err2) return res.status(200).json({ status: 'failure', errors: ['bad password'] });
+        client.query(queries.create_user, [username, hash, email, firstName,
+          lastName, new Date()],
+        (err3, result2) => {
+          if (err3) return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
+          const user = result2.rows[0];
+          const token = jwt.sign({ id: user.id }, config.jwt.secret);
+          return res.status(200).json({
+            status: 'success',
+            user,
+            token,
+          });
+        });
+      });
+    }));
+  }));
 });
+
+router.post('/login', [
+  check('username').exists().withMessage('Enter username').trim()
+    .isLength({ min: 5 })
+    .withMessage('Minimum length for username is 5'),
+  check('password').exists().withMessage('Enter password').isLength({ min: 5 })
+    .withMessage('Minimum length for password is 5'),
+], (req, res) => {
+  const errors = validationResult(req);
+  const errorArray = [];
+  errors.array().forEach((err1) => {
+    errorArray.push(err1.msg);
+  });
+
+  if (!errors.isEmpty()) {
+    return res.json({ status: 'failure', errors: errorArray });
+  }
+
+  const { username, password } = req.body;
+  client.query(queries.find_user_get_password, [username], (err, results) => {
+    if(err) console.log(err);
+    console.log(`User logging in : ${results}`);
+    if (results) {
+      const user = results.rows[0];
+      const token = jwt.sign({ id: user.id }, config.jwt.secret);
+      bcrypt.compare(password, user.password, (err2, result) => {
+        if (result) {
+          return res.status(200).json({
+            status: 'success',
+            user,
+            token,
+          });
+        }
+        return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
+      });
+    } else {
+      return res.status(200).json({ status: 'failure', errors: ['Invalid login details usaw'] });
+    }
+  });
+});
+module.exports = router;

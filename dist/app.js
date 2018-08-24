@@ -79,7 +79,7 @@ app.use(function (err, req, res) {
   res.render('error');
 });
 
-app.listen(3000, function () {});
+app.listen(process.env.API_PORT, function () {});
 
 module.exports = app;
 //# sourceMappingURL=app.js.map

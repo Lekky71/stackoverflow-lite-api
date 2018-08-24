@@ -50,6 +50,6 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-app.listen(3000, () => {});
+app.listen(process.env.API_PORT, () => {});
 
 module.exports = app;
