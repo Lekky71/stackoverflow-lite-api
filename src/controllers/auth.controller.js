@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Client } from 'pg';
 import { check, validationResult } from 'express-validator/check';
+import uuidv4 from 'uuid/v4';
 import config from '../config/config';
 import queries from '../queries/query';
 
@@ -20,15 +21,16 @@ client.connect((err) => {
   if (err) console.log(`could not connect to Database : ${JSON.stringify(err)}`);
   else {
     console.log('Successfully connected to database');
-    client.query(queries.check_if_table_exists, ['yggujbbubuhuihh8u9u'], (err1, results) => {
-      if (err1) {
-        client.query(queries.create_user_table)
-          .then((result) => {
+    client.query(queries.create_user_table)
+      .then((result) => {
 
-          }).catch((err2) => {
-          });
-      }
-    });
+      }).catch((err2) => {
+      });
+    // client.query(queries.check_if_table_exists, ['yggujbbubuhuihh8u9u'], (err1, results) => {
+    //   if (err1) {
+    //
+    //   }
+    // });
   }
 });
 router.post('/signup', [
@@ -61,17 +63,19 @@ router.post('/signup', [
   const firstName = req.body.first_name;
   const lastName = req.body.last_name;
 
-  JSON.stringify(client.query(queries.find_user_by_username, [username], (err, result) => {
+  client.query(queries.find_user_by_username, [username], (err, result) => {
     if (err) {
       return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
     }
-    JSON.stringify(client.query(queries.find_user_by_email, [email], (err1, result1) => {
+    client.query(queries.find_user_by_email, [email], (err1, result1) => {
       if (err1) {
         return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
       }
       bcrypt.hash(password, 10, (err2, hash) => {
         if (err2) return res.status(200).json({ status: 'failure', errors: ['bad password'] });
-        client.query(queries.create_user, [username, hash, email, firstName,
+        const userId = uuidv4().toString();
+        console.log(`UUID is ${userId}`);
+        client.query(queries.create_user, [userId, username, hash, email, firstName,
           lastName, new Date()],
         (err3, result2) => {
           if (err3) return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
@@ -84,8 +88,8 @@ router.post('/signup', [
           });
         });
       });
-    }));
-  }));
+    });
+  });
 });
 
 router.post('/login', [
@@ -107,8 +111,7 @@ router.post('/login', [
 
   const { username, password } = req.body;
   client.query(queries.find_user_get_password, [username], (err, results) => {
-    if (err)
-      return res.status(200).json({ status: 'failure', errors: ['could not login'] });
+    if (err) return res.status(200).json({ status: 'failure', errors: ['could not login'] });
     if (results.rows[0]) {
       const user = results.rows[0];
       const token = jwt.sign({ id: user.id }, config.jwt.secret);
