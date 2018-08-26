@@ -1,9 +1,9 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { Client } from 'pg';
 import { check, validationResult } from 'express-validator/check';
 import uuidv4 from 'uuid/v4';
+import tokenController from './token.controller';
 import config from '../config/config';
 import queries from '../queries/query';
 
@@ -26,11 +26,6 @@ client.connect((err) => {
 
       }).catch((err2) => {
       });
-    // client.query(queries.check_if_table_exists, ['yggujbbubuhuihh8u9u'], (err1, results) => {
-    //   if (err1) {
-    //
-    //   }
-    // });
   }
 });
 router.post('/signup', [
@@ -74,13 +69,12 @@ router.post('/signup', [
       bcrypt.hash(password, 10, (err2, hash) => {
         if (err2) return res.status(200).json({ status: 'failure', errors: ['bad password'] });
         const userId = uuidv4().toString();
-        console.log(`UUID is ${userId}`);
         client.query(queries.create_user, [userId, username, hash, email, firstName,
           lastName, new Date()],
         (err3, result2) => {
           if (err3) return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
           const user = result2.rows[0];
-          const token = jwt.sign({ id: user.id }, config.jwt.secret);
+          const token = tokenController.generateToken(user.id);
           return res.status(200).json({
             status: 'success',
             user,
@@ -114,9 +108,10 @@ router.post('/login', [
     if (err) return res.status(200).json({ status: 'failure', errors: ['could not login'] });
     if (results.rows[0]) {
       const user = results.rows[0];
-      const token = jwt.sign({ id: user.id }, config.jwt.secret);
+      const token = tokenController.generateToken(user.id);
       bcrypt.compare(password, user.password, (err2, result) => {
         if (result) {
+          delete user.password;
           return res.status(200).json({
             status: 'success',
             user,
@@ -126,7 +121,7 @@ router.post('/login', [
         return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
       });
     } else {
-      return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
+      return res.status(200).json({ status: 'failure', errors: ['Invalid login detailswa'] });
     }
   });
 });

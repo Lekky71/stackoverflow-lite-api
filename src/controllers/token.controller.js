@@ -13,4 +13,12 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-module.exports = verifyToken;
+const generateToken = (userId) => {
+  if (userId) {
+    return jwt.sign({ id: userId }, config.jwt.secret);
+  }
+  return '';
+};
+
+module.exports.verifyToken = verifyToken;
+module.exports.generateToken = generateToken;
