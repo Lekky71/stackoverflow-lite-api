@@ -1,33 +1,15 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { Client } from 'pg';
 import { check, validationResult } from 'express-validator/check';
 import uuidv4 from 'uuid/v4';
+import { client } from './database.controller';
 import tokenController from './token.controller';
 import config from '../config/config';
 import queries from '../queries/query';
 
 
 const router = express.Router();
-const client = new Client({
-  user: config.postgresql.user,
-  host: config.postgresql.host,
-  database: config.postgresql.database,
-  password: config.postgresql.password,
-  port: config.postgresql.port,
-});
 
-client.connect((err) => {
-  if (err) console.log(`could not connect to Database : ${JSON.stringify(err)}`);
-  else {
-    console.log('Successfully connected to database');
-    client.query(queries.create_user_table)
-      .then((result) => {
-
-      }).catch((err2) => {
-      });
-  }
-});
 router.post('/signup', [
   check('username').exists().withMessage('Enter username').trim()
     .isLength({ min: 5 })
@@ -74,7 +56,7 @@ router.post('/signup', [
         (err3, result2) => {
           if (err3) return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
           const user = result2.rows[0];
-          const token = tokenController.generateToken(user.id);
+          const token = tokenController.generateToken(user.user_id);
           return res.status(200).json({
             status: 'success',
             user,
@@ -108,7 +90,7 @@ router.post('/login', [
     if (err) return res.status(200).json({ status: 'failure', errors: ['could not login'] });
     if (results.rows[0]) {
       const user = results.rows[0];
-      const token = tokenController.generateToken(user.id);
+      const token = tokenController.generateToken(user.user_id);
       bcrypt.compare(password, user.password, (err2, result) => {
         if (result) {
           delete user.password;

@@ -1,11 +1,14 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import { client, findUserById } from './database.controller';
+import { verifyToken, generateToken } from './token.controller';
+
 
 const router = express.Router();
 
 /**
  * Get all questions.
  */
+
 router.get('/', (req, res) => {
 
 });
@@ -14,16 +17,31 @@ router.get('/', (req, res) => {
  * Get a question.
  * @param questionId : question id
  */
-router.get('/:questionId', (req, res) => {
+router.get('/:questionId', verifyToken, (req, res) => {
   const id = req.params.id;
-
 });
 
 /**
  * Post a question.
  */
-router.post('/', (req, res) => {
+router.post('/', verifyToken, (req, res) => {
+  /*
+  question_id TEXT PRIMARY KEY NOT NULL,
+                         category TEXT,
+                         title TEXT,
+                         content TEXT,
+                         preferred_answer_id TEXT,
+                         user_id TEXT REFERENCES users(user_id),
+                         answer_count INTEGER,
+                         created_at TIMESTAMP );`,
+   */
+  const { category, title, content } = req.body;
+  const userId = req.userId;
+  findUserById(userId, (err, user) => {
+    if (!err) {
 
+    }
+  });
 });
 
 /**
