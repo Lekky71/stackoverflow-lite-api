@@ -1,6 +1,8 @@
 import { Client } from 'pg';
+import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import queries from '../queries/query';
+import { verifyToken, generateToken } from './token.controller';
 
 const client = new Client({
   user: config.postgresql.user,
@@ -41,14 +43,36 @@ client.connect((er) => {
 });
 
 const findUserById = (userId, callback) => {
-  client.query(queries.find_user_by_id, [userId], (err, results) => {
-    if (err) callback(err, null);
-    if (results.rows[0]) {
-      return callback(null, results.rows[0]);
+  client.query(queries.get_user_by_id, [userId], (err, results) => {
+    if (err) {
+      if (callback) callback(err, null);
     }
-    return callback('Error undefined', null);
+    if (results.rows[0]) {
+      if (callback) callback(null, results.rows[0]);
+    }
+  });
+};
+
+const verifyUser = (req, res, next) => {
+  const token = req.headers['x-access-token'];
+  if (!token) {
+    return res.status(403).send({ status: 'failure', errors: ['No token provided'] });
+  }
+  jwt.verify(token, config.jwt.secret, (err, decoded) => {
+    if (err) return res.status(403).json({ status: 'failure', errors: ['Failed to authenticate token'] });
+    req.body.userId = decoded.id;
+
+    findUserById(decoded.id, (err1, user) => {
+      if (!err1) {
+        // req.user = user;
+        next();
+      } else {
+        return res.status(200).json({ status: 'failure', errors: ['could not verify token'] });
+      }
+    });
   });
 };
 
 module.exports.client = client;
 module.exports.findUserById = findUserById;
+module.exports.verifyUser = verifyUser;

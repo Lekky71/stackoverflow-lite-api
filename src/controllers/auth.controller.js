@@ -40,11 +40,11 @@ router.post('/signup', [
   const firstName = req.body.first_name;
   const lastName = req.body.last_name;
 
-  client.query(queries.find_user_by_username, [username], (err, result) => {
+  client.query(queries.get_user_by_username, [username], (err, result) => {
     if (err) {
       return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
     }
-    client.query(queries.find_user_by_email, [email], (err1, result1) => {
+    client.query(queries.get_user_by_email, [email], (err1, result1) => {
       if (err1) {
         return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
       }
@@ -86,7 +86,7 @@ router.post('/login', [
   }
 
   const { username, password } = req.body;
-  client.query(queries.find_user_get_password, [username], (err, results) => {
+  client.query(queries.get_user_get_password, [username], (err, results) => {
     if (err) return res.status(200).json({ status: 'failure', errors: ['could not login'] });
     if (results.rows[0]) {
       const user = results.rows[0];
