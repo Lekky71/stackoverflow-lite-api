@@ -80,21 +80,47 @@ router.post('/', verifyUser, [
 /**
  * Delete a question.
  */
-router.delete('/:questionId', (req, res) => {
+router.delete('/:questionId', verifyUser, (req, res) => {
 
 });
 
 /**
  * Post an answer to a question.
  */
-router.post('/:questionId/answer', (req, res) => {
+router.post('/:questionId/answer', [
+  check('content').exists().withMessage('Enter content').trim()
+    .isLength({ min: 20 })
+    .withMessage('Minimum length for content is 20'),
+], (req, res) => {
+  const errors = validationResult(req);
+  const errorArray = [];
+  errors.array().forEach((err1) => {
+    errorArray.push(err1.msg);
+  });
 
+  if (!errors.isEmpty()) {
+    return res.json({ status: 'failure', errors: errorArray });
+  }
+  const { content, userId } = req.body;
+  const { questionId } = req.params;
+  const answerId = uuidv4().toString();
+  client.query(queries.add_answer, [answerId, questionId, content,
+    userId, 0, 0, new Date()], (err1, results1) => {
+    if (err1) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+    });
+  });
 });
 
 /**
  * Question poster can mark an answer a preferred.
  */
 router.put('/:questionId/answers/:answerId/mark', (req, res) => {
+  const { userId } = req.body;
+  const { questionId, answerId } = req.params;
 
 });
 

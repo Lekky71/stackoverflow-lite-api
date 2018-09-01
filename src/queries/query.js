@@ -39,4 +39,6 @@ module.exports = {
                  VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
   get_all_questions: 'SELECT * FROM questions;',
   get_question_by_id: 'SELECT * FROM questions WHERE question_id = $1 ;',
+  add_answer: `INSERT INTO answers (answer_id, question_id, content, answerer_user_id, up_votes, down_votes, created_at)
+               VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
 };
