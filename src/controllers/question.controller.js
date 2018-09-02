@@ -81,7 +81,16 @@ router.post('/', verifyUser, [
  * Delete a question.
  */
 router.delete('/:questionId', verifyUser, (req, res) => {
-
+  const { questionId } = req.params;
+  const { userId } = req.body;
+  client.query(queries.delete_question_by_id, [questionId], (err1, results1) => {
+    if (err1) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, rows_deleted: results1.rowCount, token: generateToken(userId),
+    });
+  });
 });
 
 /**
@@ -118,37 +127,56 @@ router.post('/:questionId/answer', [
 /**
  * Question poster can mark an answer a preferred.
  */
-router.put('/:questionId/answers/:answerId/mark', (req, res) => {
+router.put('/:questionId/answers/:answerId/mark', verifyUser, (req, res) => {
   const { userId } = req.body;
   const { questionId, answerId } = req.params;
-
+  client.query(queries.mark_answer_as_preferred, [answerId, questionId],
+    (err1, results1) => {
+      if (err1) {
+        return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+      }
+      return res.status(200).json({
+        status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+      });
+    });
 });
 
 /**
  * Upvote or downvote an answer.
  */
-router.put('/vote', (req, res) => {
+router.put('/:questionId/answers/:answerId/vote', [
+  check('vote').exists().withMessage('enter vote'),
+], verifyUser, (req, res) => {
+  const errors = validationResult(req);
+  const errorArray = [];
+  errors.array().forEach((err1) => {
+    errorArray.push(err1.msg);
+  });
+
+  if (!errors.isEmpty()) {
+    return res.json({ status: 'failure', errors: errorArray });
+  }
 
 });
 
 /**
  * Comment on an answer.
  */
-router.post('/comment', (req, res) => {
+router.post('/comment', verifyUser, (req, res) => {
 
 });
 
 /**
  * User fetches all questions he/she has ever asked.
  */
-router.get('/my-questions', (req, res) => {
+router.get('/my-questions', verifyUser, (req, res) => {
 
 });
 
 /**
  * Search for questions on the platform.
  */
-router.get('/search', (req, res) => {
+router.get('/search', verifyUser, (req, res) => {
 
 });
 
