@@ -1,11 +1,24 @@
 import express from 'express';
 import uuidv4 from 'uuid/v4';
 import { check, validationResult } from 'express-validator/check';
-import { client, findUserById, verifyUser } from './database.controller';
+import { client, verifyUser } from './database.controller';
 import { generateToken } from './token.controller';
 import queries from '../queries/query';
 
 const router = express.Router();
+
+const validateRoute = (req, res, next) => {
+  const errors = validationResult(req);
+  const errorArray = [];
+  errors.array().forEach((err1) => {
+    errorArray.push(err1.msg);
+  });
+
+  if (!errors.isEmpty()) {
+    return res.json({ status: 'failure', errors: errorArray });
+  }
+  next();
+};
 
 /**
  * Get all questions.
@@ -13,6 +26,51 @@ const router = express.Router();
 
 router.get('/', verifyUser, (req, res) => {
   client.query(queries.get_all_questions, (err, results) => {
+    if (err) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, questions: results.rows, token: generateToken(req.body.userId),
+    });
+  });
+});
+
+/**
+ * User fetches all questions he/she has ever asked.
+ */
+router.get('/my-questions', verifyUser, (req, res) => {
+  const { userId } = req.body;
+  client.query(queries.get_all_user_questions, [userId], (err, results) => {
+    if (err) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, questions: results.rows, token: generateToken(req.body.userId),
+    });
+  });
+});
+
+/**
+ * Search for questions on the platform.
+ */
+router.get('/search', verifyUser, (req, res) => {
+  const { query } = req.query;
+  client.query(queries.search_for_question, [`%${query}%`], (err, results) => {
+    if (err) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, questions: results.rows, token: generateToken(req.body.userId),
+    });
+  });
+});
+
+
+/**
+ * Get all the most answered questions.
+ */
+router.get('/popular-questions', verifyUser, (req, res) => {
+  client.query(queries.get_questions_by_answer_count, (err, results) => {
     if (err) {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
@@ -32,8 +90,29 @@ router.get('/:questionId', verifyUser, (req, res) => {
     if (err) {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
-    return res.status(200).json({
-      status: 'success', errors: null, questions: results.rows, token: generateToken(req.body.userId),
+    const question = results.rows[0];
+    client.query(queries.get_answers_for_question, [question.question_id], (err1, results1) => {
+      if (err1) {
+        return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+      }
+      const answers = results1.rows;
+      console.log(`array of length : ${answers.length}`);
+      for (let i = 0; i < answers.length; i += 1) {
+        const ans = answers[i];
+        const ansId = ans.answer_id;
+        console.log('looping through array');
+        client.query(queries.get_comments_for_answer, [ansId], (err2, results2) => {
+          if (err2) {
+            return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+          }
+          answers[i].comments = results2.rows;
+          console.log(results2.rows);
+        });
+      }
+      question.answers = answers;
+      return res.status(200).json({
+        status: 'success', errors: null, question, token: generateToken(req.body.userId),
+      });
     });
   });
 });
@@ -50,17 +129,7 @@ router.post('/', verifyUser, [
     .withMessage('Minimum length for category is 3'),
   check('content').exists().withMessage('Enter content').isLength({ min: 5 })
     .withMessage('Minimum length for content is 5'),
-], (req, res) => {
-  const errors = validationResult(req);
-  const errorArray = [];
-  errors.array().forEach((err1) => {
-    errorArray.push(err1.msg);
-  });
-
-  if (!errors.isEmpty()) {
-    return res.json({ status: 'failure', errors: errorArray });
-  }
-
+], validateRoute, (req, res) => {
   const { userId } = req.body;
   const {
     category, title, content,
@@ -71,8 +140,10 @@ router.post('/', verifyUser, [
     if (err1) {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
+    const question = results1.rows[1];
+    question.answers = [];
     return res.status(200).json({
-      status: 'success', errors: null, question: results1.rows[0], token: generateToken(userId),
+      status: 'success', errors: null, question, token: generateToken(userId),
     });
   });
 });
@@ -96,20 +167,11 @@ router.delete('/:questionId', verifyUser, (req, res) => {
 /**
  * Post an answer to a question.
  */
-router.post('/:questionId/answer', [
+router.post('/:questionId/answer', verifyUser, [
   check('content').exists().withMessage('Enter content').trim()
     .isLength({ min: 20 })
     .withMessage('Minimum length for content is 20'),
-], (req, res) => {
-  const errors = validationResult(req);
-  const errorArray = [];
-  errors.array().forEach((err1) => {
-    errorArray.push(err1.msg);
-  });
-
-  if (!errors.isEmpty()) {
-    return res.json({ status: 'failure', errors: errorArray });
-  }
+], validateRoute, (req, res) => {
   const { content, userId } = req.body;
   const { questionId } = req.params;
   const answerId = uuidv4().toString();
@@ -144,48 +206,49 @@ router.put('/:questionId/answers/:answerId/mark', verifyUser, (req, res) => {
 /**
  * Upvote or downvote an answer.
  */
-router.put('/:questionId/answers/:answerId/vote', [
+router.put('/:questionId/answers/:answerId/vote', verifyUser, [
   check('vote').exists().withMessage('enter vote'),
-], verifyUser, (req, res) => {
-  const errors = validationResult(req);
-  const errorArray = [];
-  errors.array().forEach((err1) => {
-    errorArray.push(err1.msg);
-  });
-
-  if (!errors.isEmpty()) {
-    return res.json({ status: 'failure', errors: errorArray });
+], validateRoute, (req, res) => {
+  const { vote } = req.body;
+  const { answerId } = req.params;
+  let type;
+  if (vote === 'up') {
+    type = queries.up_vote_answer;
+  } else if (vote === 'down') {
+    type = queries.down_vote_answer;
   }
-
+  client.query(type, [answerId], (err, results) => {
+    if (err) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, comment: results.rows[0], token: generateToken(req.body.userId),
+    });
+  });
 });
 
 /**
  * Comment on an answer.
  */
-router.post('/comment', verifyUser, (req, res) => {
-
+router.post('/:questionId/answers/:answerId/comment', verifyUser, [
+  check('content').exists().withMessage('enter comment body'),
+], validateRoute, (req, res) => {
+  const { userId, content } = req.body;
+  const { answerId } = req.params;
+  // const commentReturn = 'comment_id, answer_id, content, poster_user_id, created_at';
+  const commentId = uuidv4().toString();
+  client.query(queries.add_comment, [commentId, answerId, content,
+    userId, new Date()], (err1, results1) => {
+    if (err1) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+    });
+  });
 });
 
-/**
- * User fetches all questions he/she has ever asked.
- */
-router.get('/my-questions', verifyUser, (req, res) => {
-
-});
-
-/**
- * Search for questions on the platform.
- */
-router.get('/search', verifyUser, (req, res) => {
-
-});
 
 
-/**
- * Get all the most answered questions.
- */
-router.get('/popular-questions', (req, res) => {
-
-});
 
 module.exports = router;
