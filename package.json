@@ -5,7 +5,7 @@
   "main": "./dist/app.js",
   "scripts": {
     "start": "nodemon app.js --exec babel-node --presets es2015,stage-2",
-    "build": "rm -r dist && babel --source-maps --out-dir=dist src",
+    "build": "babel --source-maps --out-dir=dist src",
     "serve": "node dist/app.js",
     "server": "npm run build && npm run serve",
     "server-test": "npm run build && mocha ./dist/tests/*.js --reporter spec --timeout 3000"

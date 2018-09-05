@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import express from 'express';
 import uuidv4 from 'uuid/v4';
 import { check, validationResult } from 'express-validator/check';
@@ -91,29 +92,37 @@ router.get('/:questionId', verifyUser, (req, res) => {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
     const question = results.rows[0];
-    client.query(queries.get_answers_for_question, [question.question_id], (err1, results1) => {
-      if (err1) {
-        return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
-      }
-      const answers = results1.rows;
-      console.log(`array of length : ${answers.length}`);
-      for (let i = 0; i < answers.length; i += 1) {
-        const ans = answers[i];
-        const ansId = ans.answer_id;
-        console.log('looping through array');
-        client.query(queries.get_comments_for_answer, [ansId], (err2, results2) => {
-          if (err2) {
-            return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
-          }
-          answers[i].comments = results2.rows;
-          console.log(results2.rows);
+    if (question) {
+      client.query(queries.get_answers_for_question, [question.question_id], (err1, results1) => {
+        if (err1) {
+          return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+        }
+        const answers = results1.rows;
+        console.log(`array of length : ${answers.length}`);
+        for (let i = 0; i < answers.length; i += 1) {
+          const ans = answers[i];
+          const ansId = ans.answer_id;
+          console.log('looping through array');
+          client.query(queries.get_comments_for_answer, [ansId], (err2, results2) => {
+            if (err2) {
+              return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+            }
+            // const tempAns = { ...{ comments: results2.rows }, comments: [] };
+            Object.assign({ comments: results2.rows }, answers[i]);
+            // answers[i] = tempAns;
+            // console.log(tempAns);
+          });
+        }
+        question.answers = answers;
+        return res.status(200).json({
+          status: 'success', errors: null, question, token: generateToken(req.body.userId),
         });
-      }
-      question.answers = answers;
-      return res.status(200).json({
-        status: 'success', errors: null, question, token: generateToken(req.body.userId),
       });
-    });
+    } else {
+      return res.status(200).json({
+        status: 'success', errors: null, question: [], token: generateToken(req.body.userId),
+      });
+    }
   });
 });
 
@@ -140,7 +149,7 @@ router.post('/', verifyUser, [
     if (err1) {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
-    const question = results1.rows[1];
+    const question = results1.rows[0];
     question.answers = [];
     return res.status(200).json({
       status: 'success', errors: null, question, token: generateToken(userId),
@@ -198,7 +207,7 @@ router.put('/:questionId/answers/:answerId/mark', verifyUser, (req, res) => {
         return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
       }
       return res.status(200).json({
-        status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+        status: 'success', errors: null, question: results1.rows[0], token: generateToken(userId),
       });
     });
 });
@@ -222,7 +231,7 @@ router.put('/:questionId/answers/:answerId/vote', verifyUser, [
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
     return res.status(200).json({
-      status: 'success', errors: null, comment: results.rows[0], token: generateToken(req.body.userId),
+      status: 'success', errors: null, answer: results.rows[0], token: generateToken(req.body.userId),
     });
   });
 });
@@ -243,12 +252,10 @@ router.post('/:questionId/answers/:answerId/comment', verifyUser, [
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
     return res.status(200).json({
-      status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+      status: 'success', errors: null, comment: results1.rows[0], token: generateToken(userId),
     });
   });
 });
-
-
 
 
 module.exports = router;

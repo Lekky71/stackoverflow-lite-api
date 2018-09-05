@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import { Client } from 'pg';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
@@ -49,7 +50,7 @@ const findUserById = (userId, callback) => {
     }
     if (results.rows[0]) {
       if (callback) callback(null, results.rows[0]);
-    }
+    } else if (callback) callback(err, null);
   });
 };
 
@@ -63,8 +64,7 @@ const verifyUser = (req, res, next) => {
     req.body.userId = decoded.id;
 
     findUserById(decoded.id, (err1, user) => {
-      if (!err1) {
-        // req.user = user;
+      if (user) {
         next();
       } else {
         return res.status(200).json({ status: 'failure', errors: ['could not verify token'] });

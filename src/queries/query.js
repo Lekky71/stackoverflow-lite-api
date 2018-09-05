@@ -41,7 +41,7 @@ module.exports = {
                           created_at TIMESTAMP );`,
   add_question: `INSERT INTO questions (question_id, category, title, content, user_id, answer_count, created_at) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${questionReturn}`,
-  get_all_questions: `SELECT ${questionReturn} FROM questions;`,
+  get_all_questions: `SELECT ${questionReturn} FROM questions ORDER BY created_at DESC;`,
   get_question_by_id: `SELECT ${questionReturn} FROM questions WHERE question_id = $1 ;`,
   add_answer: `INSERT INTO answers (answer_id, question_id, content, answerer_user_id, up_votes, down_votes, created_at)
                VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${answerReturn}`,
@@ -51,7 +51,7 @@ module.exports = {
                              RETURNING ${questionReturn};`,
   delete_question_by_id: `DELETE FROM questions
                           WHERE question_id = $1;`,
-  get_all_user_questions: `SELECT ${questionReturn} FROM questions WHERE user_id = $1 ;`,
+  get_all_user_questions: `SELECT ${questionReturn} FROM questions WHERE user_id = $1 ORDER BY created_at DESC;`,
   search_for_question: `SELECT ${questionReturn}
                         FROM questions
                         WHERE title LIKE '%$1%' OR content LIKE $1 
