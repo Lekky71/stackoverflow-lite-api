@@ -5,9 +5,10 @@
   "main": "./dist/app.js",
   "scripts": {
     "start": "nodemon app.js --exec babel-node --presets es2015,stage-2",
-    "build": "babel --source-maps --out-dir=dist src",
+    "build": "rm -r dist && babel --source-maps --out-dir=dist src",
     "serve": "node dist/app.js",
-    "server": "npm run build && npm run serve"
+    "server": "npm run build && npm run serve",
+    "server-test": "npm run build && mocha ./dist/tests/*.js --reporter spec --timeout 3000"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -28,6 +29,7 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.7.0",
     "chai": "^3.5.0",
+    "chai-http": "^4.2.0",
     "eslint": "^5.4.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",

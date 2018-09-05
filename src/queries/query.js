@@ -15,7 +15,7 @@ module.exports = {
   check_if_table_exists: 'SELECT user FROM users WHERE username = $1;',
   get_user_by_username: `SELECT ${userReturn} FROM users WHERE username = $1 `,
   get_user_by_id: `SELECT ${userReturn} FROM users WHERE user_id = $1 `,
-  get_user_get_password: `SELECT ${userReturn} FROM users WHERE username = $1;`,
+  get_user_get_password: `SELECT ${userReturn}, password FROM users WHERE username = $1;`,
   get_user_by_email: `SELECT ${userReturn} FROM users WHERE email=$1`,
   create_user: `INSERT INTO users (user_id, username, password, email, first_name, last_name, created_at)
                 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${userReturn}`,

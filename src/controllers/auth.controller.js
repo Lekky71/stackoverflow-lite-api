@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { check, validationResult } from 'express-validator/check';
@@ -40,32 +41,31 @@ router.post('/signup', [
   const firstName = req.body.first_name;
   const lastName = req.body.last_name;
 
-  client.query(queries.get_user_by_username, [username], (err, result) => {
-    if (err) {
-      return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
-    }
-    client.query(queries.get_user_by_email, [email], (err1, result1) => {
-      if (err1) {
-        return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
+  bcrypt.hash(password, 10, (err2, hash) => {
+    if (err2) return res.status(200).json({ status: 'failure', errors: ['bad password'] });
+    const userId = uuidv4().toString();
+    client.query(queries.create_user, [userId, username, hash, email, firstName,
+      lastName, new Date()],
+    (err3, result2) => {
+      if (err3) {
+        if (err3.constraint === '') {
+          return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
+        }
+        if (err3.constraint === '') {
+          return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
+        }
+        return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
       }
-      bcrypt.hash(password, 10, (err2, hash) => {
-        if (err2) return res.status(200).json({ status: 'failure', errors: ['bad password'] });
-        const userId = uuidv4().toString();
-        client.query(queries.create_user, [userId, username, hash, email, firstName,
-          lastName, new Date()],
-        (err3, result2) => {
-          if (err3) return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
-          const user = result2.rows[0];
-          const token = tokenController.generateToken(user.user_id);
-          return res.status(200).json({
-            status: 'success',
-            user,
-            token,
-          });
-        });
+      const user = result2.rows[0];
+      const token = tokenController.generateToken(user.user_id);
+      return res.status(200).json({
+        status: 'success',
+        user,
+        token,
       });
     });
   });
+
 });
 
 router.post('/login', [
