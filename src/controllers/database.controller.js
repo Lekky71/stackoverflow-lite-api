@@ -1,16 +1,23 @@
-/* eslint-disable consistent-return */
+/* eslint-disable consistent-return,no-unused-vars */
 import { Client } from 'pg';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import queries from '../queries/query';
-import { verifyToken, generateToken } from './token.controller';
+import isDevEnv from '../config/dev.env.config';
+
+// const client = new Client({
+//   user: config.postgresql.user,
+//   host: config.postgresql.host,
+//   database: config.postgresql.database,
+//   password: config.postgresql.password,
+//   port: config.postgresql.port,
+// });
+let conString;
+if (isDevEnv === true) conString = config.postgresql.devConnectionString;
+else conString = config.postgresql.onlineConnectionString;
 
 const client = new Client({
-  user: config.postgresql.user,
-  host: config.postgresql.host,
-  database: config.postgresql.database,
-  password: config.postgresql.password,
-  port: config.postgresql.port,
+  connectionString: conString,
 });
 
 client.connect((er) => {

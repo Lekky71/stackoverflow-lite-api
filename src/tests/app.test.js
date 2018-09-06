@@ -8,16 +8,17 @@ chai.use(chaiHttp);
 const apiVersion = '/api/v1';
 const qstPath = '/api/v1/questions';
 
-const user = Math.random().toString(36).substring(2, 5)
-  + Math.random().toString(36).substring(2, 7);
-const email = Math.random().toString(36).substring(2, 5)
-  + Math.random().toString(36).substring(2, 7);
-let accessToken = '';
-let questionId = '';
-let answerId = '';
-const pass = 'lekeleke';
-
 describe('Testing endpoints', () => {
+  const user = Math.random().toString(36).substring(2, 5)
+    + Math.random().toString(36).substring(2, 7);
+  const email = Math.random().toString(36).substring(2, 5)
+    + Math.random().toString(36).substring(2, 7);
+  const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI3ZmQ3ODU2LTAwZDgtNDA1Yy05NjVhLWZjY'
+    + 'jFmYTJhNzBiMSIsImlhdCI6MTUzNjE5MTQ5MX0.CftSQkvJ0UsBxVxbax63NtcY6uueu0zuLmNiykoVL9U';
+  const questionId = 'aca4b77d-edce-4e76-98ed-82e32964b746';
+  const answerId = 'c014bc2a-2568-4d4f-96c1-79f6b302136d';
+  const pass = 'lekeleke';
+
   it('should create new user', () => {
     chai.request(app)
       .post(`${apiVersion}/auth/signup`)
@@ -32,7 +33,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('user');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -63,7 +63,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('user');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -93,8 +92,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('question');
         expect(res).to.have.property('token');
-        accessToken = res.token;
-        questionId = res.question.question_id;
       });
   });
 
@@ -106,7 +103,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('question');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -118,7 +114,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('questions');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -130,7 +125,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('questions');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -142,7 +136,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.status('success');
         expect(res).to.have.property('questions');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -158,9 +151,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.property('status');
         expect(res).to.have.property('answer');
         expect(res).to.have.property('token');
-        accessToken = res.token;
-        answerId = res.answer.answer_id;
-        questionId = res.answer.question_id;
       });
   });
 
@@ -172,7 +162,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.property('status');
         expect(res).to.have.property('question');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -185,7 +174,6 @@ describe('Testing endpoints', () => {
         expect(res).to.have.property('status');
         expect(res).to.have.property('answer');
         expect(res).to.have.property('token');
-        accessToken = res.token;
       });
   });
 
@@ -198,7 +186,18 @@ describe('Testing endpoints', () => {
         expect(res).to.have.property('status');
         expect(res).to.have.property('answer');
         expect(res).to.have.property('token');
-        accessToken = res.token;
+      });
+  });
+
+  it('should add a comment to an answer', () => {
+    chai.request(app)
+      .post(`${qstPath}/${questionId}/answers/${answerId}/comment`)
+      .set('x-access-token', accessToken)
+      .send({ content: 'Please, include links to OS installation guides. Thanks.' })
+      .end((err, res) => {
+        expect(res).to.have.property('status');
+        expect(res).to.have.property('answer');
+        expect(res).to.have.property('token');
       });
   });
 });
