@@ -86,6 +86,7 @@ router.post('/login', [
   }
 
   const { username, password } = req.body;
+  console.log(req.body);
   client.query(queries.get_user_get_password, [username], (err, results) => {
     if (err) return res.status(200).json({ status: 'failure', errors: ['could not login'] });
     if (results.rows[0]) {
@@ -103,7 +104,7 @@ router.post('/login', [
         return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
       });
     } else {
-      return res.status(200).json({ status: 'failure', errors: ['Invalid login detailswa'] });
+      return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
     }
   });
 });

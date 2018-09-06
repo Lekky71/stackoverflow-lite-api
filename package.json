@@ -11,8 +11,10 @@
     "test": "npm run build && mocha ./dist/tests/*.js --require ./test.helper.js --reporter spec --timeout 3000"
   },
   "dependencies": {
+    "babel-register": "latest",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.3",
+    "cors": "^2.8.4",
     "debug": "~2.6.9",
     "dotenv": "^6.0.0",
     "ejs": "~2.5.7",
@@ -22,8 +24,7 @@
     "jsonwebtoken": "^8.3.0",
     "morgan": "~1.9.0",
     "pg": "^7.4.3",
-    "uuid": "^3.3.2",
-    "babel-register": "latest"
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
