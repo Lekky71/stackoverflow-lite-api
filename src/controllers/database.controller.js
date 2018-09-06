@@ -1,25 +1,29 @@
 /* eslint-disable consistent-return,no-unused-vars */
-import { Client } from 'pg';
+import { Pool } from 'pg';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import queries from '../queries/query';
 import isDevEnv from '../config/dev.env.config';
 
-// const client = new Client({
-//   user: config.postgresql.user,
-//   host: config.postgresql.host,
-//   database: config.postgresql.database,
-//   password: config.postgresql.password,
-//   port: config.postgresql.port,
-// });
-let conString;
-if (isDevEnv === true) conString = config.postgresql.devConnectionString;
-else conString = config.postgresql.onlineConnectionString;
+let client;
 
-const client = new Client({
-  connectionString: conString,
-  ssl: true,
-});
+let conString;
+if (isDevEnv === true) {
+  conString = config.postgresql.devConnectionString;
+  client = new Pool({
+    connectionString: conString,
+    ssl: true,
+  });
+} else {
+  client = new Pool({
+    user: config.postgresql.user,
+    host: config.postgresql.host,
+    database: config.postgresql.database,
+    password: config.postgresql.password,
+    port: config.postgresql.port,
+  });
+}
+
 
 client.connect((er) => {
   if (er) console.log(`could not connect to Database : ${JSON.stringify(er)}`);

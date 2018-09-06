@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import favicon from 'serve-favicon';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import indexRouter from './routes/index';
@@ -29,7 +30,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(favicon(path.join(__dirname.replace('dist', 'public'), 'favicon.ico')));
+app.use(express.static(path.join(__dirname.replace('dist', ''), 'public')));
 
 app.use('/', indexRouter);
 app.use(`/${apiVersion}/auth`, authController);
@@ -52,6 +54,8 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-app.listen(process.env.API_PORT, () => { console.log(`App is listening live on port ${process.env.API_PORT}`); });
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`App is listening live on port ${process.env.API_PORT}`);
+});
 
 module.exports = app;
