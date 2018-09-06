@@ -55,7 +55,7 @@ app.use((err, req, res) => {
 });
 
 app.listen(process.env.PORT || 3000, () => {
-  console.log(`App is listening live on port ${process.env.API_PORT}`);
+  console.log(`App is listening live on port ${process.env.PORT}`);
 });
 
 module.exports = app;

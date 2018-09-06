@@ -48,10 +48,10 @@ router.post('/signup', [
       lastName, new Date()],
     (err3, result2) => {
       if (err3) {
-        if (err3.constraint === '') {
+        if (err3.constraint.toString().includes('username')) {
           return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
         }
-        if (err3.constraint === '') {
+        if (err3.constraint.toString().includes('email')) {
           return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
         }
         return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
