@@ -18,6 +18,7 @@ else conString = config.postgresql.onlineConnectionString;
 
 const client = new Client({
   connectionString: conString,
+  ssl: true,
 });
 
 client.connect((er) => {
