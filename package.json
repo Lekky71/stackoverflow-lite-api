@@ -8,7 +8,7 @@
     "build": "babel --source-maps --out-dir=dist src",
     "serve": "node dist/app.js",
     "server": "npm run build && npm run serve",
-    "test": "npm run build && mocha ./dist/tests/*.js --reporter spec --timeout 3000"
+    "test": "npm run build && mocha ./dist/tests/*.js --compilers js:babel-register --reporter spec --timeout 3000"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
