@@ -1,5 +1,5 @@
 const userReturn = 'user_id, username, email, first_name, last_name, created_at';
-const questionReturn = 'question_id, category, title, content, preferred_answer_id, user_id, answer_count, created_at';
+const questionReturn = 'question_id, category, title, content, preferred_answer_id, user_id, created_at';
 const commentReturn = 'comment_id, answer_id, content, poster_user_id, created_at';
 const answerReturn = 'answer_id, question_id, content, answerer_user_id, up_votes, down_votes, created_at';
 
@@ -25,7 +25,6 @@ module.exports = {
                          content TEXT,
                          preferred_answer_id TEXT,
                          user_id TEXT REFERENCES users(user_id),
-                         answer_count INTEGER,
                          created_at TIMESTAMP );`,
   create_answers_table: `CREATE TABLE IF NOT EXISTS answers (answer_id TEXT PRIMARY KEY NOT NULL,
                          question_id TEXT REFERENCES questions(question_id) ON DELETE CASCADE,

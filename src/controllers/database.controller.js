@@ -9,10 +9,9 @@ let client;
 
 let conString;
 if (isDevEnv === true) {
-  conString = config.postgresql.devConnectionString;
+  conString = config.postgresql.offlineConnectionString;
   client = new Pool({
     connectionString: conString,
-    ssl: true,
   });
 } else {
   client = new Pool({
