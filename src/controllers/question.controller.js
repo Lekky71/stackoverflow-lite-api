@@ -198,13 +198,19 @@ router.post('/:questionId/answer', verifyUser, [
   const { content, userId } = req.body;
   const { questionId } = req.params;
   const answerId = uuidv4().toString();
-  client.query(queries.add_answer, [answerId, questionId, content,
-    userId, 0, 0, new Date()], (err1, results1) => {
-    if (err1) {
+
+  client.query(queries.increase_answer_count, [questionId], (err, results) => {
+    if (err) {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
-    return res.status(200).json({
-      status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+    client.query(queries.add_answer, [answerId, questionId, content,
+      userId, 0, 0, new Date()], (err1, results1) => {
+      if (err1) {
+        return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+      }
+      return res.status(200).json({
+        status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+      });
     });
   });
 });

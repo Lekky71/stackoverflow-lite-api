@@ -1,5 +1,5 @@
 const userReturn = 'user_id, username, email, first_name, last_name, created_at';
-const questionReturn = 'question_id, category, title, content, preferred_answer_id, user_id, created_at';
+const questionReturn = 'question_id, category, title, content, preferred_answer_id, user_id, answer_count, created_at';
 const commentReturn = 'comment_id, answer_id, content, poster_user_id, created_at';
 const answerReturn = 'answer_id, question_id, content, answerer_user_id, up_votes, down_votes, created_at';
 
@@ -25,6 +25,7 @@ module.exports = {
                          content TEXT,
                          preferred_answer_id TEXT,
                          user_id TEXT REFERENCES users(user_id),
+                         answer_count INTEGER,
                          created_at TIMESTAMP );`,
   create_answers_table: `CREATE TABLE IF NOT EXISTS answers (answer_id TEXT PRIMARY KEY NOT NULL,
                          question_id TEXT REFERENCES questions(question_id) ON DELETE CASCADE,
@@ -48,6 +49,10 @@ module.exports = {
                              SET preferred_answer_id = $1
                              WHERE question_id = $2
                              RETURNING ${questionReturn};`,
+  increase_answer_count: `UPDATE questions
+                          SET answer_count = answer_count + 1
+                          WHERE question_id = $1
+                          RETURNING ${questionReturn}`,
   delete_question_by_id: `DELETE FROM questions
                           WHERE question_id = $1;`,
   get_all_user_questions: `SELECT ${questionReturn} FROM questions WHERE user_id = $1 ORDER BY created_at DESC;`,
