@@ -27,7 +27,7 @@ app.set('view engine', 'ejs');
 
 // app.use(cors());
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://stack-overflow-lite-frontend.herokuapp.com, http://localhost:63342');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
   next();
 });
