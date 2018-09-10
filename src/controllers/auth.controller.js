@@ -10,7 +10,12 @@ import queries from '../queries/query';
 
 
 const router = express.Router();
-
+const app = express();
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
+  next();
+});
 router.post('/signup', [
   check('username').exists().withMessage('Enter username').trim()
     .isLength({ min: 5 })
