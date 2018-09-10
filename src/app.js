@@ -32,6 +32,11 @@ app.use(cors(
     optionsSuccessStatus: 200,
   },
 ));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
+  next();
+});
 
 if (!isDevEnv) {
   app.options('*', cors()); // include before other routes

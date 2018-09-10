@@ -49,16 +49,16 @@ router.post('/signup', [
     (err3, result2) => {
       if (err3) {
         if (err3.constraint.toString().includes('username')) {
-          return res.status(200).json({ status: 'failure', errors: ['username is taken'] });
+          return res.status(403).json({ status: 'failure', errors: ['username is taken'] });
         }
         if (err3.constraint.toString().includes('email')) {
-          return res.status(200).json({ status: 'failure', errors: ['email is taken'] });
+          return res.status(403).json({ status: 'failure', errors: ['email is taken'] });
         }
-        return res.status(200).json({ status: 'failure', errors: ['could not create account'] });
+        return res.status(403).json({ status: 'failure', errors: ['could not create account'] });
       }
       const user = result2.rows[0];
       const token = tokenController.generateToken(user.user_id);
-      return res.status(200).json({
+      return res.set('Access-Control-Allow-Origin', '*').res.status(200).json({
         status: 'success',
         user,
         token,
@@ -99,10 +99,12 @@ router.post('/login', [
             token,
           });
         }
-        return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
+        return res.set('Access-Control-Allow-Origin', '*').res.status(200).json({
+          status: 'failure', errors: ['Invalid login details'] });
       });
     } else {
-      return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
+      return res.set('Access-Control-Allow-Origin', '*').res.status(200).json({
+        status: 'failure', errors: ['Invalid login details'] });
     }
   });
 });
