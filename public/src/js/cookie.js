@@ -30,6 +30,7 @@ const getSavedUser = () => {
 
 const postData = (url, data, callback) => fetch(rootUrl + url, {
   method: 'POST', // *GET, POST, PUT, DELETE, etc.
+  mode: 'same-origin', // no-cors, cors, *same-origin
   headers: {
     'Content-Type': 'application/json; charset=utf-8',
     Accept: 'application/json',
@@ -49,6 +50,7 @@ const postData = (url, data, callback) => fetch(rootUrl + url, {
 
 const putData = (url, data, callback) => fetch(rootUrl + url, {
   method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+  mode: 'same-origin', // no-cors, cors, *same-origin
   headers: {
     'Content-Type': 'application/json; charset=utf-8',
     Accept: 'application/json',
@@ -69,6 +71,7 @@ const putData = (url, data, callback) => fetch(rootUrl + url, {
 
 const getData = (url, callback) => fetch(rootUrl + url, {
   method: 'GET', // *GET, POST, PUT, DELETE, etc.
+  mode: 'same-origin', // no-cors, cors, *same-origin
   headers: {
     Accept: 'application/json',
     'x-access-token': getCookie('token'),
