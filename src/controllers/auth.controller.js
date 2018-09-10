@@ -104,12 +104,10 @@ router.post('/login', [
             token,
           });
         }
-        return res.status(200).json({
-          status: 'failure', errors: ['Invalid login details'] });
+        return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
       });
     } else {
-      return res.status(200).json({
-        status: 'failure', errors: ['Invalid login details'] });
+      return res.status(200).json({ status: 'failure', errors: ['Invalid login details'] });
     }
   });
 });
