@@ -30,21 +30,21 @@ app.use(express.static(viewFolder));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-if (!isDevEnv) {
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://stack-overflow-lite-frontend.herokuapp.com');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
-    app.use(cors({
-      origin: 'https://stack-overflow-lite-frontend.herokuapp.com',
-      optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    }));
-    app.use(cors());
-    app.options('*', cors()); // include before other routes
-    next();
-  });
-} else {
-  app.use(cors());
-}
+// if (!isDevEnv) {
+//   app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', 'https://stack-overflow-lite-frontend.herokuapp.com');
+//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
+//     app.use(cors({
+//       origin: 'https://stack-overflow-lite-frontend.herokuapp.com',
+//       optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+//     }));
+//     app.use(cors());
+//     app.options('*', cors()); // include before other routes
+//     next();
+//   });
+// } else {
+//   app.use(cors());
+// }
 
 app.use(logger('dev'));
 app.use(express.json());
