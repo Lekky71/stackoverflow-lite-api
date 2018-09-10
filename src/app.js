@@ -21,6 +21,10 @@ const app = express();
  * @type {string}
  */
 const apiVersion = 'api/v1';
+const viewFolder = `${__dirname.replace('dist', 'public')}/src`; // view folder
+console.log(`dirname is : ${__dirname}`);
+console.log(viewFolder);
+app.use(express.static(viewFolder));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

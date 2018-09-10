@@ -1,0 +1,85 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>StackOverFlow Lite</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="images/icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <script type="text/javascript" src="js/cookie.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+  <script type="text/javascript" src="js/profile.js"></script>
+</head>
+
+<body>
+<header class="container header">
+  <div class="col-3">
+    <h1 style="color: white" class="title"><a href="./index.html">StackOverFlow Lite</a></h1>
+  </div>
+  <div class="col-3">
+    <form id="search-form" method="get" action="#" style="display: flex; background-color: white; border-radius: 3px;">
+      <input name="query" id="search-input" placeholder="Search" type="text" required/>
+      <input id="search-button" name="submit" type="submit" value="Search"/>
+    </form>
+  </div>
+  <div class="col-6 topnav">
+    <a href="./index.html">Questions</a>
+    <a href="#" onclick="showAddQuestionPopUp()">Post</a>
+    <a href="./profile.html">Profile</a>
+    <a onclick="logout()" href="#">Log Out</a>
+  </div>
+</header>
+
+<div id="question-container" class="profile-container">
+  <h1 id="question-title" style="margin-left: 1%">Profile</h1>
+  <div class="" style="display: flex; font-size: 13px">
+    <img src="./images/profile.svg" style="width: 120px; height: 120px; object-fit: cover; margin-right: 4%">
+    <div>
+      <h1 id="username"></h1>
+      <p id="fullname"></p>
+      <p id="email"></p>
+    </div>
+  </div>
+</div>
+
+<div class="profile-container" style="font-size: 14px">
+  <div class="" style="">
+    <div id="questions-count"></div>
+    <br/>
+    <div style="height: 1px; background-color: slategrey; margin-bottom: 1%"></div>
+    <br/>
+    <div id="answers-count"></div>
+  </div>
+</div>
+
+<div class="profile-container" style="font-size: 13px; ">
+  <h2>Your Popular Questions</h2>
+  <div style="height: 1px; background-color: slategrey; margin-bottom: 1%"></div>
+  <br/>
+  <div class="container" id="popular-questions-container">
+
+  </div>
+</div>
+
+
+<div class="profile-container" style="font-size: 13px;">
+  <h2>Your Recent Questions</h2>
+  <div style="height: 1px; background-color: slategrey; margin-bottom: 1%"></div>
+  <br/>
+  <div class="container" id="recent-questions-container">
+
+  </div>
+</div>
+
+
+</body>
+
+</html>

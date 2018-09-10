@@ -1,0 +1,103 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>StackOverFlow Lite</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="images/icon.png">
+  <!-- Place favicon.ico in the root directory -->
+
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <script type="text/javascript" src="js/cookie.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+  <script type="text/javascript" src="js/question.js"></script>
+</head>
+
+<body>
+<header class="container header">
+  <div class="col-3">
+    <h1 style="color: white" class="title"><a href="./index.html">StackOverFlow Lite</a></h1>
+  </div>
+  <div class="col-3">
+    <form id="search-form" method="get" action="#" style="display: flex; background-color: white; border-radius: 3px;">
+      <input name="query" id="search-input" placeholder="Search" type="text" required/>
+      <input id="search-button" name="submit" type="submit" value="Search"/>
+    </form>
+  </div>
+  <div class="col-6 topnav">
+    <a href="./index.html">Questions</a>
+    <a href="#" onclick="showAddQuestionPopUp()">Post</a>
+    <a href="./profile.html">Profile</a>
+    <a onclick="logout()" href="#">Log Out</a>
+  </div>
+</header>
+
+<div style="margin-top: 5%; margin-bottom: 5%; background-color: white; padding-top: 1%; padding-bottom: 2%"
+     id="question-container">
+  <h1 id="question-title"></h1>
+  <div style="height: 1px; background-color: slategrey;"></div>
+  <div class="main-part">
+    <div class="question" style="margin-bottom: 1.5%">
+      <p style="font-size: 15px" id="question-content">
+      </p>
+      <div class="tags" id="question-tag">
+        Mobile Web
+      </div>
+      <div class="col-12" style="display: flex; justify-content: flex-end; padding-right: 20px">
+        <div class="tags"
+             style="font-size: 13px; background-color: #3CB371; text-align: left; height: fit-content; padding: 8px; margin-right: 23px">
+          <div class=""><span id="question-date"></span></div>
+          <div id="question-asker"></div>
+        </div>
+      </div>
+    </div>
+    <div class="answers">
+      <div>
+        <h2 style="color: darkslategray;" id="answer-count">0 Answers</h2>
+        <div style="height: 1px; background-color: slategrey;"></div>
+      </div>
+      <div id="all-answers">
+      </div>
+
+      <div class="col-12">
+        <h2>Add an answer</h2>
+        <form id="add-answer-form">
+        <textarea id="answer-textarea" title="answer" class="col-12"
+                  style="height: 120px; font-size: 14px; margin-bottom: 1%" minlength="20" required>
+        </textarea>
+          <input id="answer-button" type="submit" value="Post your answer" style="color: white; text-align: center"/>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="add-comment-modal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close" id="close-modal">&times;</span>
+      <h2>Add a comment</h2>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="add-comment-form" style="display: flex; flex-flow: column; align-items: center">
+        <textarea title="comment" id="comment-textarea" name="content"style="width: 100%; height: 100px" required minlength="10"></textarea>
+        <br/>
+        <input type="submit" value="Post comment" style="color: white"/>
+        <br/>
+      </form>
+    </div>
+  </div>
+
+</div>
+</body>
+
+</html>
