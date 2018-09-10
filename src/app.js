@@ -9,7 +9,7 @@ import cors from 'cors';
 import indexRouter from './routes/index';
 import authController from './controllers/auth.controller';
 import questionController from './controllers/question.controller';
-import isDevEnv from '../config/dev.env.config';
+import isDevEnv from './config/dev.env.config';
 
 
 dotenv.config({ path: path.join(__dirname.replace('dist', ''), '.env') });
