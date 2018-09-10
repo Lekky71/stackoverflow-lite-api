@@ -45,7 +45,7 @@ router.post('/signup', [
     if (err2) return res.status(200).json({ status: 'failure', errors: ['bad password'] });
     const userId = uuidv4().toString();
     client.query(queries.create_user, [userId, username, hash, email, firstName,
-      lastName, new Date()],
+      lastName, new Date(), 0],
     (err3, result2) => {
       if (err3) {
         if (err3.constraint.toString().includes('username')) {
@@ -65,7 +65,6 @@ router.post('/signup', [
       });
     });
   });
-
 });
 
 router.post('/login', [

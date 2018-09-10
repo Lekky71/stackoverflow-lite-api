@@ -2,7 +2,7 @@
 import express from 'express';
 import uuidv4 from 'uuid/v4';
 import { check, validationResult } from 'express-validator/check';
-import { client, verifyUser } from './database.controller';
+import { client, verifyUser, findUserById } from './database.controller';
 import { generateToken } from './token.controller';
 import queries from '../queries/query';
 
@@ -106,6 +106,11 @@ router.get('/:questionId', verifyUser, (req, res) => {
           }
           const answers = results1.rows;
           const newAnswers = [];
+          if (answers.length < 1){
+            return res.status(200).json({
+              status: 'success', errors: null, question, token: generateToken(req.body.userId),
+            });
+          }
           for (let i = 0; i < answers.length; i += 1) {
             const ans = answers[i];
             const ansId = ans.answer_id;
@@ -193,23 +198,28 @@ router.delete('/:questionId', verifyUser, (req, res) => {
 router.post('/:questionId/answer', verifyUser, [
   check('content').exists().withMessage('Enter content').trim()
     .isLength({ min: 20 })
-    .withMessage('Minimum length for content is 20'),
+    .withMessage('Minimum length for content is 10'),
 ], validateRoute, (req, res) => {
   const { content, userId } = req.body;
   const { questionId } = req.params;
   const answerId = uuidv4().toString();
 
-  client.query(queries.increase_answer_count, [questionId], (err, results) => {
+  client.query(queries.increase_question_answer_count, [questionId], (err, results) => {
     if (err) {
       return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
     }
-    client.query(queries.add_answer, [answerId, questionId, content,
-      userId, 0, 0, new Date()], (err1, results1) => {
-      if (err1) {
+    client.query(queries.increase_user_answer_count, [userId], (err0, results0) => {
+      if (err0) {
         return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
       }
-      return res.status(200).json({
-        status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+      client.query(queries.add_answer, [answerId, questionId, content,
+        userId, 0, 0, new Date()], (err1, results1) => {
+        if (err1) {
+          return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+        }
+        return res.status(200).json({
+          status: 'success', errors: null, answer: results1.rows[0], token: generateToken(userId),
+        });
       });
     });
   });
@@ -273,6 +283,18 @@ router.post('/:questionId/answers/:answerId/comment', verifyUser, [
     }
     return res.status(200).json({
       status: 'success', errors: null, comment: results1.rows[0], token: generateToken(userId),
+    });
+  });
+});
+
+router.get('/user/:userId', verifyUser, (req, res) => {
+  const { userId } = req.params;
+  findUserById(userId, (err, user) => {
+    if (err) {
+      return res.status(200).json({ status: 'failure', errors: ['an error occurred'] });
+    }
+    return res.status(200).json({
+      status: 'success', errors: null, user, token: generateToken(userId),
     });
   });
 });
