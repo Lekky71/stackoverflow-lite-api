@@ -28,7 +28,7 @@ window.addEventListener('load', (ev) => {
           } else {
             saveCookie('user', JSON.stringify(res.user));
             saveCookie('token', res.token);
-            window.location.href = './index.html';
+            window.location.reload();
           }
         }
       });
@@ -61,7 +61,7 @@ window.addEventListener('load', (ev) => {
           } else {
             saveCookie('user', JSON.stringify(res.user));
             saveCookie('token', res.token);
-            window.location.href = './index.html';
+            window.location.reload();
           }
         }
       });
