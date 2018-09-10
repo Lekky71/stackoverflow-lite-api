@@ -9,6 +9,7 @@ import cors from 'cors';
 import indexRouter from './routes/index';
 import authController from './controllers/auth.controller';
 import questionController from './controllers/question.controller';
+import isDevEnv from '../config/dev.env.config';
 
 
 dotenv.config({ path: path.join(__dirname.replace('dist', ''), '.env') });
@@ -25,12 +26,15 @@ const apiVersion = 'api/v1';
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// app.use(cors());
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://stack-overflow-lite-frontend.herokuapp.com, http://localhost:63342');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
-  next();
-});
+if (!isDevEnv) {
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://stack-overflow-lite-frontend.herokuapp.com');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
+    next();
+  });
+} else {
+  app.use(cors());
+}
 
 app.use(logger('dev'));
 app.use(express.json());
