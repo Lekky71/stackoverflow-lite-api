@@ -63,7 +63,7 @@ router.post('/signup', [
       }
       const user = result2.rows[0];
       const token = tokenController.generateToken(user.user_id);
-      return res.set('Access-Control-Allow-Origin', '*').res.status(200).json({
+      return res.status(200).json({
         status: 'success',
         user,
         token,
@@ -104,11 +104,11 @@ router.post('/login', [
             token,
           });
         }
-        return res.set('Access-Control-Allow-Origin', '*').res.status(200).json({
+        return res.status(200).json({
           status: 'failure', errors: ['Invalid login details'] });
       });
     } else {
-      return res.set('Access-Control-Allow-Origin', '*').res.status(200).json({
+      return res.status(200).json({
         status: 'failure', errors: ['Invalid login details'] });
     }
   });
