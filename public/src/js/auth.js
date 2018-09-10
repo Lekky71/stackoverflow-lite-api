@@ -1,8 +1,12 @@
 window.addEventListener('load', (ev) => {
+  const user = getSavedUser();
+  if (user) {
+    window.location.href = './index.html';
+  }
   console.log('Page has been loaded');
   const loginForm = document.getElementById('login-form');
   const signUpForm = document.getElementById('signup-form');
-  const rootUrl = 'http://127.0.0.1:3000/api/v1';
+  // const rootUrl = 'http://127.0.0.1:3000/api/v1';
 
   if (loginForm) {
     loginForm.addEventListener('submit', (event) => {
