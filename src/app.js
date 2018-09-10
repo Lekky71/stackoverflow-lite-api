@@ -5,10 +5,11 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import favicon from 'serve-favicon';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import indexRouter from './routes/index';
 import authController from './controllers/auth.controller';
 import questionController from './controllers/question.controller';
-
+import isDevEnv from './config/dev.env.config';
 
 dotenv.config({ path: path.join(__dirname.replace('dist', ''), '.env') });
 
@@ -19,31 +20,22 @@ const app = express();
  * @type {string}
  */
 const apiVersion = 'api/v1';
-const viewFolder = `${__dirname.replace('dist', 'public')}/src`; // view folder
-console.log(`dirname is : ${__dirname}`);
-console.log(viewFolder);
-app.use(express.static(viewFolder));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.use(cors(
+  {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: true,
+    optionsSuccessStatus: 200,
+  },
+));
 
-// if (!isDevEnv) {
-//   app.use((req, res, next) => {
-//     res.header('Access-Control-Allow-Origin', 'https://stack-overflow-lite-frontend.herokuapp.com');
-//     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, x-access-token, Accept');
-//     app.use(cors({
-//       origin: 'https://stack-overflow-lite-frontend.herokuapp.com',
-//       optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-//     }));
-//     app.use(cors());
-//     app.options('*', cors()); // include before other routes
-//     next();
-//   });
-// } else {
-//   app.use(cors());
-// }
-
+if (!isDevEnv) {
+  app.options('*', cors()); // include before other routes
+}
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
